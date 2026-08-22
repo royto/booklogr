@@ -28,7 +28,7 @@ function UpdateReadingStatusButton(props) {
             }
         )
     }
-    
+
     const setFinished = () => {
         BooksService.edit(props.id, {current_page: props.totalPages, status: "Read"}).then(
             response => {
@@ -37,19 +37,19 @@ function UpdateReadingStatusButton(props) {
                 setOpenFinishModal(true);
             }
         )
-    }    
+    }
 
     return (
         <>
             {props.buttonStyle == "alternative" ? (
-                <Button className="w-full" onClick={() => setOpenModal(true)}>{t("book.update_reading.update_progress")}</Button>
+                <Button className="text-xs w-full" onClick={() => setOpenModal(true)}>{t("book.update_reading.update_progress")}</Button>
             ) :(
-                <Button className="w-full" color="light" pill size="sm" onClick={() => setOpenModal(true)}>{t("book.update_reading.update_progress")}</Button>
+                <Button className="text-xs w-full" color="light" pill size="sm" onClick={() => setOpenModal(true)}>{t("book.update_reading.update_progress")}</Button>
             )}
             <Modal size="lg" dismissible show={openModal} onClose={() => setOpenModal(false)}>
             <ModalHeader className="border-gray-200">{t("book.update_reading.update_reading_progress")}</ModalHeader>
                 <ModalBody>
-                    <UpdateReadingStatusView title={props.title} totalPages={props.totalPages} 
+                    <UpdateReadingStatusView title={props.title} totalPages={props.totalPages}
                         onNoProgressError={() => setUpdateButtonDisabled(false)}
                         onProgressLesserError={() => setUpdateButtonDisabled(true)}
                         onProgressGreaterError={() => setUpdateButtonDisabled(true)}
@@ -74,7 +74,7 @@ function UpdateReadingStatusButton(props) {
                             <h2>{t("book.update_reading.finished.title")}</h2>
                             <p>
                                 {t("book.update_reading.finished.description", {book_title: props.title})}
-                            </p>                            
+                            </p>
                         </div>
                         <div className="flex flex-col items-center">
                             <p>{t("book.rating.rate_this_book")}</p>

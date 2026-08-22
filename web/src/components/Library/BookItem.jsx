@@ -24,9 +24,9 @@ function BookItem(props) {
                 />
                 <div className="flex flex-col p-4 leading-normal w-full overflow-hidden">
                 <Link to={"/books/" + props.isbn} className="hover:underline dark:decoration-white">
-                    <h5 className="mb-2 text font-bold tracking-tight text-gray-900 dark:text-white">{props.title}</h5>
+                    <h5 className="mb-2 text-base font-bold tracking-tight text-gray-900 dark:text-white">{props.title}</h5>
                 </Link>
-                <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 truncate">
+                <p className="text-sm mb-3 font-normal text-gray-700 dark:text-gray-400 truncate">
                     {props.author && props.onAuthorClick ? (
                         <span
                             role="button"
@@ -47,7 +47,7 @@ function BookItem(props) {
                 }
 
                 {props.showProgress &&
-                    <div className="mt-auto">
+                    <div className="text-xs mt-auto">
                         <Progress className="mb-3" progress={props.totalPages === 0 ? 0 : Math.round((100 * props.currentPage) / props.totalPages)} size="md" labelProgress textLabel={t("book.update_reading.reading_progress")} labelText textLabelPosition="outside" progressLabelPosition="outside" />
                         <div className='flex flex-row items-center justify-between w-full'>
                             <div className={`${props.view === "gallery" ? "grow" : ""}`}>
@@ -59,7 +59,7 @@ function BookItem(props) {
                         </div>
                     </div>
                 }
-                <div className="flex flex-row justify-between">
+                <div className="text-xs flex flex-row justify-between">
                 {props.showRating &&
                     <BookRating id={props.internalID} title={props.title} rating={props.rating} disableGiveRating={props.disableGiveRating} />
                 }
