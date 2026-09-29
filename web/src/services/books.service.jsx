@@ -49,6 +49,17 @@ const getReadingSessions = (book_id) => {
     return axios.get(getAPIUrl(`v1/books/${book_id}/sessions`), {headers: authHeader() })
 }
 
+const replaceCover = (book_id, file) => {
+    const formData = new FormData();
+    formData.append("cover", file);
+
+    return axios.post(getAPIUrl(`v1/books/${book_id}/cover`), formData, {
+        headers: {
+            ...authHeader(),
+            "Content-Type": "multipart/form-data"
+        }
+    });
+}
 
 export default {
     add,
@@ -61,4 +72,5 @@ export default {
     get_isbn,
     search,
     getReadingSessions,
+    replaceCover,
 };

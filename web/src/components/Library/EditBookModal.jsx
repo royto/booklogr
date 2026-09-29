@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { TextInput, Button, Select, Label, Textarea, Tooltip, Card } from 'flowbite-react';
 import useToast from '../../toast/useToast';
 import BooksService from '../../services/books.service';
@@ -21,6 +21,7 @@ function EditBookModal(props) {
     const [readingStatus, setReadingStatus] = useState(props.readingStatus ?? "To be read");
     const [fields, setFields] = useState([]);
     const [fieldValues, setFieldValues] = useState({});
+    const coverInputRef = useRef(null);
     const toast = useToast(4000);
     const theme = useThemeMode();
     const { t } = useTranslation();
@@ -43,6 +44,23 @@ function EditBookModal(props) {
 
     const handleFieldChange = (fieldId, value) => {
         setFieldValues(prev => ({ ...prev, [fieldId]: value }));
+    };
+
+    const handleCoverChange = async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+        if (!file) return;
+
+        try {
+            const response = await BooksService.replaceCover(props.id, file);
+            toast("success", response.data.message);
+        } catch (error) {
+            const resMessage =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+            toast("error", resMessage);
+        }
     };
 
     const handleEditBook = () => {
@@ -103,9 +121,17 @@ function EditBookModal(props) {
                         loader={<Skeleton count={1} width={200} height={200} borderRadius={0} inline={true}/>}
                         unloader={theme.mode == "dark" && <img width={200} src="/fallback-cover-light.svg"/> || theme.mode == "light" && <img width={200} src="/fallback-cover.svg"/>}
                     />
-                    <Tooltip content={t("book.not_implemented")}>
-                        <Button disabled>{t("actions.replace_cover")}</Button>
-                    </Tooltip>
+                    
+                    <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="hidden"
+                        onChange={handleCoverChange}
+                    />
+                    <Button onClick={() => coverInputRef.current?.click()}>
+                        {t("actions.replace_cover")}
+                    </Button>
                 </Card>
                 {fields.length > 0 && (
                     <Card>

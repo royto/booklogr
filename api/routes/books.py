@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
 from api.models import Books, BooksSchema, NotesSchema, Notes, UserSettings, BooksStatusSchema, Profile, ReadingSessions, ReadingSessionsSchema, Fields, FieldValue, db
 from api.decorators import required_params, auth_required
 from api.routes.tasks import _create_task
@@ -14,6 +14,7 @@ from sqlalchemy import or_, func
 from api.extensions import cache
 from api.book_provider import BookProvider
 from api.isbn import isbn_lookup_values
+import os
 
 books_endpoint = Blueprint('books', __name__)
 
@@ -781,3 +782,122 @@ def get_book_reading_sessions(id):
     ).order_by(ReadingSessions.start_date.desc()).all()
     
     return jsonify(ReadingSessionsSchema(many=True).dump(history))
+
+@books_endpoint.route("/v1/books/<id>/cover", methods=["POST"])
+@auth_required()
+def upload_book_cover(id):
+    """
+      Update book cover
+      ---
+      tags:
+          - Books
+      parameters:
+          - name: id
+            in: path
+            description: ID of book
+            required: true
+            schema:
+              type: integer
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - cover
+              properties:
+                cover:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []         
+      responses:
+        200:
+          description: Cover uploaded successfully.
+        404:
+          description: No book found.
+        400:
+          description: No cover file provided.
+        400: 
+          description: Invalid cover file.
+    """
+
+    claim_id = get_current_user_id()
+    
+    book = Books.query.filter(Books.owner_id == claim_id, Books.id == id).first()
+    if not book:
+        return jsonify({"error": "Not found", "message": "No book found"}), 404
+
+    if "cover" not in request.files:
+        return jsonify({"error": "Bad request", "message": "No cover file provided"}), 400
+
+    cover_file = request.files["cover"]
+    if not cover_file.filename:
+        return jsonify({"error": "Bad request", "message": "Invalid cover file"}), 400
+
+    cover_file_ext = cover_file.filename.lower().split('.')[-1]
+    if cover_file_ext not in ['jpg', 'jpeg', 'png']:
+        return jsonify({"error": "Bad request", "message": "Invalid cover file format. Only JPG and PNG are allowed."}), 400
+
+    cover_path = os.path.join("covers", f"{book.id}.{cover_file_ext}")
+    os.makedirs(os.path.dirname(cover_path), exist_ok=True)
+
+    # Remove any other cover files with different extensions
+    for ext in ['jpg', 'jpeg', 'png']:
+        if ext != cover_file_ext:
+            other_cover_path = os.path.join("covers", f"{book.id}.{ext}")
+            if os.path.exists(other_cover_path):
+                os.remove(other_cover_path)
+
+    cover_file.save(cover_path)
+
+   
+
+    return jsonify({"message": "Cover uploaded successfully"}), 200
+      
+@books_endpoint.route("/v1/books/<id>/cover", methods=["GET"])
+#@auth_required()
+def get_book_cover(id):
+    """
+      Get book cover
+      ---
+      tags:
+          - Books
+      parameters:
+          - name: id
+            in: path
+            description: ID of book
+            required: true
+            schema:
+              type: integer
+      security:
+        - bearerAuth: []         
+      responses:
+        200:
+          description: book cover
+        404:
+          description: No book found.
+        404:
+          description: No cover found.
+    """
+
+    #claim_id = get_current_user_id()
+    
+    #book = Books.query.filter(Books.owner_id == claim_id, Books.id == id).first()
+    book = Books.query.filter(Books.id == id).first()
+    if not book:
+        return jsonify({"error": "Not found", "message": "No cover found"}), 404
+
+    covers_folder = os.path.join(os.getcwd(), "covers")     
+    for extension in ("jpg", "jpeg", "png"):
+      filename = f"{book.id}.{extension}" 
+      if os.path.isfile(os.path.join(covers_folder, filename)):
+        return send_from_directory(covers_folder, filename, as_attachment=False)
+
+    return jsonify({"error": "Not found", "message": "No cover found"}), 404
+      
