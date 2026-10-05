@@ -10,6 +10,7 @@ function BookCover({
     internalID,
     isbn,
     size = "M",
+    refreshKey,
     className,
     loaderWidth = 96,
     loaderHeight = 128,
@@ -24,13 +25,17 @@ function BookCover({
         internalID && getAPIUrl(`/v1/books/${internalID}/cover`),
         `https://covers.openlibrary.org/b/isbn/${isbn}-${size}.jpg?default=false`
     ].filter(Boolean) : undefined);
+    const imageSources = refreshKey == null
+        ? coverSources
+        : (Array.isArray(coverSources) ? coverSources : [coverSources])
+            .filter(Boolean)
+            .map(source => `${source}${source.includes("?") ? "&" : "?"}coverVersion=${encodeURIComponent(refreshKey)}`);
 
-    console.log("BookCover", {src, internalID, isbn, coverSources, fallbackCover});
     return (
         <Img
             crossorigin="anonymous"
             className={className}
-            src={coverSources}
+            src={imageSources}
             alt={alt}
             width={width}
             height={height}

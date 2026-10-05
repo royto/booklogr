@@ -18,6 +18,7 @@ function EditBookModal(props) {
     const [readingStatus, setReadingStatus] = useState(props.readingStatus ?? "To be read");
     const [fields, setFields] = useState([]);
     const [fieldValues, setFieldValues] = useState({});
+    const [coverVersion, setCoverVersion] = useState(0);
     const coverInputRef = useRef(null);
     const toast = useToast(4000);
     const { t } = useTranslation();
@@ -49,6 +50,7 @@ function EditBookModal(props) {
 
         try {
             const response = await BooksService.replaceCover(props.id, file);
+            setCoverVersion(version => version + 1);
             toast("success", response.data.message);
         } catch (error) {
             const resMessage =
@@ -119,6 +121,7 @@ function EditBookModal(props) {
                         className="shadow-2xl object-fit rounded"
                         internalID={props.id}
                         isbn={isbn}
+                        refreshKey={coverVersion}
                         loaderWidth={200}
                         loaderHeight={200}
                     />
