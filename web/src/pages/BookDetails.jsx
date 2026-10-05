@@ -6,19 +6,17 @@ import AddToReadingListButtton from '../components/AddToReadingListButton';
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import useToast from '../toast/useToast';
-import { Img } from 'react-image'
 import AnimatedLayout from '../AnimatedLayout';
-import { useThemeMode } from 'flowbite-react';
 import EditionSelector from '../components/EditionSelector';
 import { useTranslation, Trans } from 'react-i18next';
 import FieldsService from '../services/fields.service';
 import { useBookDetails } from '../hooks/useBookDetails';
+import BookCover from '../components/BookCover';
 
 function BookDetails() {
     let { id } = useParams();
     const [workID, setWorkID] = useState();
     const [fieldValues, setFieldValues] = useState([]);
-    const theme = useThemeMode();
     const toast = useToast(4000);
     const { t } = useTranslation();
 
@@ -72,9 +70,13 @@ function BookDetails() {
         <div className="pt-10 lg:pt-20 pb-10">
             <div className="grid grid-cols-1 grid-rows-1 lg:grid-cols-2 gap-4 justify-items-stretch	">
                 <div className="lg:row-span-2 mx-auto">
-                    <Img crossorigin="anonymous" className="shadow-2xl object-fit rounded" src={"https://covers.openlibrary.org/b/isbn/" + id + "-L.jpg?default=false"}
-                        loader={<Skeleton count={1} width={320} height={500} borderRadius={0} inline={true}/>}
-                        unloader={theme.mode == "dark" && <img src="/fallback-cover-light.svg"/> || theme.mode == "light" && <img src="/fallback-cover.svg"/>}
+                    <BookCover
+                        className="shadow-2xl object-fit rounded"
+                        internalID={data?.library_data?.id}
+                        isbn={id}
+                        size="L"
+                        loaderWidth={320}
+                        loaderHeight={500}
                     />
                     </div>
                 <div>

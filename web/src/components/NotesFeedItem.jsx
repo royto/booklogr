@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { Badge, Tooltip } from 'flowbite-react';
 import { RiDoubleQuotesR, RiStickyNoteLine, RiBookOpenLine, RiShareLine, RiCheckLine } from 'react-icons/ri';
-import { Img } from 'react-image';
-import { useThemeMode } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../DateFormat';
-import Skeleton from 'react-loading-skeleton';
+import BookCover from './BookCover';
 
 function NotesFeedItem({ id, content, quotePage, date, bookTitle, bookIsbn, bookAuthor }) {
     const [copied, setCopied] = useState(false);
-    const theme = useThemeMode();
     const { t } = useTranslation();
 
     const isQuote = quotePage && quotePage > 0;
@@ -68,16 +65,13 @@ function NotesFeedItem({ id, content, quotePage, date, bookTitle, bookIsbn, book
             <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-gray-700">
                 <Link to={`/books/${bookIsbn}`} className="flex items-center gap-3 group min-w-0">
                     <div className="shrink-0">
-                        <Img
-                            crossOrigin="anonymous"
+                        <BookCover
                             className="w-8 h-12 object-cover rounded shadow-sm"
-                            src={`https://covers.openlibrary.org/b/isbn/${bookIsbn}-S.jpg?default=false`}
-                            loader={<Skeleton count={1} width={32} height={48} borderRadius={4} inline={true} />}
-                            unloader={
-                                theme.mode === 'dark'
-                                    ? <img className="w-8 h-12 object-cover rounded shadow-sm" src="/fallback-cover-light.svg" />
-                                    : <img className="w-8 h-12 object-cover rounded shadow-sm" src="/fallback-cover.svg" />
-                            }
+                            isbn={bookIsbn}
+                            size="S"
+                            loaderWidth={32}
+                            loaderHeight={48}
+                            loaderBorderRadius={4}
                         />
                     </div>
                     <div className="min-w-0">

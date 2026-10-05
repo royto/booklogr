@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextInput, HR, useThemeMode } from "flowbite-react";
+import { Button, TextInput, HR } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { RiSearch2Line, RiErrorWarningLine } from "react-icons/ri";
-import { Img } from 'react-image';
 import { useTranslation, Trans } from 'react-i18next';
 import ESCIcon from "./ESCIcon";
 import AddBookButton from "./AddBookButton";
 import { useSearch } from "../hooks/useSearch";
+import BookCover from "./BookCover";
 
 function SearchBar(props) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +18,6 @@ function SearchBar(props) {
     const [isFocused, setIsFocused] = useState(false);
 
     let navigate = useNavigate();
-    const theme = useThemeMode();
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -133,9 +132,11 @@ function SearchBar(props) {
                                     <Link key={data.id} to={"/books/" + data.isbn} onClick={(e) => (props.onNavigate(), closeSearch(), navigate("/books/" + data.isbn))}>
                                         <div className="grid grid-cols-1 grid-rows-1 lg:grid-cols-2 gap-4">
                                             <div className="lg:row-span-2 md:mx-auto">
-                                                <Img crossorigin="anonymous" className="object-contain h-32" src={"https://covers.openlibrary.org/b/isbn/" + data.isbn + "-M.jpg?default=false"}
-                                                    loader={<Skeleton count={1} width={100} height={"100%"} borderRadius={0} inline={true}/>}
-                                                    unloader={theme.mode == "dark" && <img className="object-contain h-32" src="/fallback-cover-light.svg"/> || theme.mode == "light" && <img className="object-contain h-32" src="/fallback-cover.svg"/>}
+                                                <BookCover
+                                                    className="object-contain h-32"
+                                                    isbn={data.isbn}
+                                                    loaderWidth={100}
+                                                    loaderHeight="100%"
                                                 />
                                             </div>
                                             <div className="row-span-2">
@@ -159,9 +160,11 @@ function SearchBar(props) {
                                     <Link key={data.id} to={"/books/" + data.isbn} onClick={(e) => (props.onNavigate(), closeSearch(), navigate("/books/" + data.isbn))}>
                                         <div className="grid grid-cols-1 grid-rows-1 lg:grid-cols-2 gap-4">
                                             <div className="lg:row-span-2 md:mx-auto">
-                                                <Img crossorigin="anonymous" className="object-contain h-32" src={"https://covers.openlibrary.org/b/isbn/" + data.isbn + "-M.jpg?default=false"}
-                                                    loader={<Skeleton count={1} width={100} height={"100%"} borderRadius={0} inline={true}/>}
-                                                    unloader={theme.mode == "dark" && <img className="object-contain h-32" src="/fallback-cover-light.svg"/> || theme.mode == "light" && <img className="object-contain h-32" src="/fallback-cover.svg"/>}
+                                                <BookCover
+                                                    className="object-contain h-32"
+                                                    isbn={data.isbn}
+                                                    loaderWidth={100}
+                                                    loaderHeight="100%"
                                                 />
                                             </div>
                                             <div className="row-span-2">

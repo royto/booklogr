@@ -5,11 +5,8 @@ import BooksService from '../services/books.service';
 import FieldsService from '../services/fields.service';
 import FieldInputs from './FieldInputs';
 import { useTranslation } from 'react-i18next';
-import { Img } from 'react-image'
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { useThemeMode } from 'flowbite-react';
 import AdaptiveDialog from './AdaptiveDialog';
+import BookCover from './BookCover';
 
 function AddBookManualModal(props) {
     const [totalPages, setTotalPages] = useState();
@@ -23,7 +20,6 @@ function AddBookManualModal(props) {
     const [fields, setFields] = useState([]);
     const [fieldValues, setFieldValues] = useState({});
     const toast = useToast(4000);
-    const theme = useThemeMode();
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -121,9 +117,13 @@ function AddBookManualModal(props) {
                 <div className="flex flex-col gap-2">
                 <Card>
                     <h2>{t("book.book_cover")}</h2>
-                    <Img crossorigin="anonymous" width={200} height={200} className="shadow-2xl object-fit rounded" src={"https://covers.openlibrary.org/b/isbn/" + isbn + "-M.jpg?default=false"}
-                        loader={<Skeleton count={1} width={200} height={200} borderRadius={0} inline={true}/>}
-                        unloader={theme.mode == "dark" && <img width={200} src="/fallback-cover-light.svg"/> || theme.mode == "light" && <img width={200} src="/fallback-cover.svg"/>}
+                    <BookCover
+                        width={200}
+                        height={200}
+                        className="shadow-2xl object-fit rounded"
+                        isbn={isbn}
+                        loaderWidth={200}
+                        loaderHeight={200}
                     />
                     <Tooltip content={t("book.not_implemented")}>
                         <Button disabled>{t("actions.replace_cover")}</Button>
