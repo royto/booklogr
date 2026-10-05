@@ -25,6 +25,7 @@ function BookCover({
         `https://covers.openlibrary.org/b/isbn/${isbn}-${size}.jpg?default=false`
     ].filter(Boolean) : undefined);
 
+    console.log("BookCover", {src, internalID, isbn, coverSources, fallbackCover});
     return (
         <Img
             crossorigin="anonymous"

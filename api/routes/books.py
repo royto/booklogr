@@ -35,6 +35,7 @@ class SearchResult:
     title: str
     author: str
     in_library: bool
+    book_id: Optional[int] = None
 
 @books_endpoint.route("/v1/books/search", methods=["GET"])
 @auth_required()
@@ -59,7 +60,7 @@ def search_books():
     seen_isbns = set()
 
     for b in local_db_results:
-        results.append(SearchResult(isbn=b.isbn, title=b.title, author=b.author, in_library=True))
+        results.append(SearchResult(isbn=b.isbn, title=b.title, author=b.author, in_library=True, book_id=b.id))
         seen_isbns.add(b.isbn)
 
     external_data = BookProvider().search(search_term)

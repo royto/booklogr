@@ -39,6 +39,7 @@ function SearchBar(props) {
         isbn: item.isbn,
         author: item.author,
         inLibrary: item.in_library,
+        book_id: item.book_id
     })) ?? [];
 
     const noSuggestionsFound = !isFetching && !isError && debouncedQuery.length >= 2 && data?.data?.num_found === 0;
@@ -135,6 +136,7 @@ function SearchBar(props) {
                                                 <BookCover
                                                     className="object-contain h-32"
                                                     isbn={data.isbn}
+                                                    internalID={data.book_id}
                                                     loaderWidth={100}
                                                     loaderHeight="100%"
                                                 />
