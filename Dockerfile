@@ -18,7 +18,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN addgroup --system app \
-    && adduser --system --ingroup app app
+    && adduser --system --ingroup app --home /home/app app \
+    && mkdir -p /home/app \
+    && chown app:app /home/app
 
 COPY --from=build /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
@@ -27,6 +29,7 @@ COPY migrations ./migrations
 COPY entrypoint.sh ./
 
 ENV PYTHONUNBUFFERED=1 \
+    HOME=/home/app \
     FLASK_APP=api.app \
     FLASK_ENV=production
 
