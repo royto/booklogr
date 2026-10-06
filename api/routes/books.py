@@ -112,17 +112,17 @@ def get_book(isbn):
               schema:
                 type: integer
         security:
-          - bearerAuth: []         
+          - bearerAuth: []
         responses:
           200:
-            description: Returns book data. 
+            description: Returns book data.
           404:
             description: No book found.
           503:
             description: Could not connect to OpenLibrary.
-        
+
         """
-    
+
     claim_id = get_current_user_id()
     book = Books.query.filter(
         Books.owner_id==claim_id,
@@ -130,14 +130,14 @@ def get_book(isbn):
     ).first()
     if book:
         return jsonify(BookData(isbn=book.isbn, title=book.title, subtitle=book.subtitle, author=book.author, description=book.description, in_library=True, total_pages=book.total_pages, library_data={"id": book.id, "reading_status": book.reading_status, "current_page": book.current_page, "rating": book.rating})), 200
-    
+
     external_data = BookProvider().get(isbn)
     if not external_data:
         return jsonify({
             "error": "Not found",
             "message": f"No book with isbn {isbn} found."
         }), 404
-    
+
     return jsonify(BookData(
         isbn=isbn,
         title=external_data["title"],
@@ -164,7 +164,7 @@ def get_book_reading_status(isbn):
               schema:
                 type: integer
         security:
-            - bearerAuth: []         
+            - bearerAuth: []
         responses:
           200:
             description: Returns book id and what list it is in.
@@ -218,7 +218,7 @@ def get_books():
               description: Sorting order (asc or desc)
               required: false
         security:
-            - bearerAuth: []         
+            - bearerAuth: []
         responses:
           200:
             description: Returns books in list
@@ -242,13 +242,13 @@ def get_books():
                   'error': 'Invalid sort field',
                   'message': 'Sort can be only one of the following fields: progress, created_on, title, author, rating, reading_status, isbn'
               }), 400
-    
+
     if order not in ORDER_FIELDS:
       return jsonify({
                   'error': 'Invalid order field',
                   'message': 'Order can be only one of the following fields: asc, desc'
               }), 400
-  
+
     books_schema = BooksSchema(many=True)
     books = Books.query.filter(Books.owner_id == claim_id)
 
@@ -267,7 +267,7 @@ def get_books():
 
     if order == "asc":
       books = books.order_by(sort_field.asc())
-    else:    
+    else:
      books = books.order_by(sort_field.desc())
 
     books = books.paginate(page=offset, per_page=limit, error_out=False)
@@ -334,7 +334,7 @@ def add_book():
                     description: Total number of pages
                     default: 0
         security:
-            - bearerAuth: []         
+            - bearerAuth: []
         responses:
           200:
             description: Book added to list.
@@ -371,14 +371,14 @@ def add_book():
         if request.json["current_page"] > total_pages:
             return jsonify({"error": "Unprocessable entity", "message": "Can't process change. The current page is greater than total pages."}), 422
         current_page = request.json["current_page"]
-    
+
     subtitle = None
     if "subtitle" in request.json:
         subtitle = request.json["subtitle"]
 
     try:
-      new_book = Books(owner_id=claim_id, title=request.json["title"], subtitle=subtitle, isbn=request.json["isbn"], 
-                      description=description, reading_status=reading_status, 
+      new_book = Books(owner_id=claim_id, title=request.json["title"], subtitle=subtitle, isbn=request.json["isbn"],
+                      description=description, reading_status=reading_status,
                       current_page=current_page, total_pages=total_pages, author=author)
       new_book.save_to_db()
 
@@ -399,7 +399,7 @@ def add_book():
                   'error': 'Foreign key violation',
                   'message': 'A profile does not exist. Please create one before trying to add a book.'
               }), 409
-        
+
     return jsonify({'message': 'Book added to list.', 'id': new_book.id}), 200
 
 @books_endpoint.route("/v1/books/<id>", methods=["PATCH"])
@@ -447,7 +447,7 @@ def edit_book(id):
           500:
             description: Unknown error occurred.
     """
-    
+
     claim_id = get_current_user_id()
     book = Books.query.filter(Books.owner_id==claim_id, Books.id==id).first()
     if request.json:
@@ -455,7 +455,7 @@ def edit_book(id):
             if int(request.json["current_page"]) <= book.total_pages:
                 book.current_page = request.json["current_page"]
             else:
-                return jsonify({"error": "Unprocessable entity", "message": "Can't process change. The current page is greater than total pages."}), 422 
+                return jsonify({"error": "Unprocessable entity", "message": "Can't process change. The current page is greater than total pages."}), 422
             if int(request.json["current_page"]) < 0:
                 return jsonify({"error": "Unprocessable entity", "message": "Can't process change. The current page can't be less than 0."}), 422
         if "total_pages" in request.json:
@@ -483,8 +483,8 @@ def edit_book(id):
                   if book.reading_status == "Read":
                     _create_task("share_book_event", json.dumps({"title": book.title, "author": book.author, "reading_status": book.reading_status}), claim_id)
 
-            else: 
-                return jsonify({"error": "Unprocessable entity", "message": "Can't process change. Status needs to be either 'Currently reading', 'To be read' or 'Read' (case sensitive)"}), 422 
+            else:
+                return jsonify({"error": "Unprocessable entity", "message": "Can't process change. Status needs to be either 'Currently reading', 'To be read' or 'Read' (case sensitive)"}), 422
 
         if "rating" in request.json:
             try:
@@ -533,7 +533,7 @@ def remove_book(id):
                 type: integer
               required: true
         security:
-            - bearerAuth: []         
+            - bearerAuth: []
         responses:
           200:
             description: Book removed successfully.
@@ -550,7 +550,7 @@ def remove_book(id):
                     "error": "Not found",
                     "message": f"No book with ID: {id} was found"
         }), 404
-    
+
 @books_endpoint.route("/v1/books/<id>/notes", methods=["GET"])
 @auth_required()
 def get_notes_for_book(id):
@@ -567,7 +567,7 @@ def get_notes_for_book(id):
                 type: integer
               required: true
         security:
-            - bearerAuth: []         
+            - bearerAuth: []
         responses:
           200:
             description: Returns notes attached to the book.
@@ -651,7 +651,7 @@ def add_book_note(id):
                     "error": "Not found",
                     "message": "No book found"
         }), 404
-    
+
 
 
 @books_endpoint.route("/v1/books/<int:id>/field-values", methods=["GET"])
@@ -776,12 +776,12 @@ def patch_book_field_values(id):
 @auth_required()
 def get_book_reading_sessions(id):
     claim_id = get_current_user_id()
-    
+
     history = ReadingSessions.query.join(Books).filter(
         Books.owner_id == claim_id,
         Books.id == id
     ).order_by(ReadingSessions.start_date.desc()).all()
-    
+
     return jsonify(ReadingSessionsSchema(many=True).dump(history))
 
 @books_endpoint.route("/v1/books/<id>/cover", methods=["POST"])
@@ -816,7 +816,7 @@ def upload_book_cover(id):
                   type: string
                   format: binary
       security:
-        - bearerAuth: []         
+        - bearerAuth: []
       responses:
         200:
           description: Cover uploaded successfully.
@@ -824,12 +824,12 @@ def upload_book_cover(id):
           description: No book found.
         400:
           description: No cover file provided.
-        400: 
+        400:
           description: Invalid cover file.
     """
 
     claim_id = get_current_user_id()
-    
+
     book = Books.query.filter(Books.owner_id == claim_id, Books.id == id).first()
     if not book:
         return jsonify({"error": "Not found", "message": "No book found"}), 404
@@ -857,12 +857,11 @@ def upload_book_cover(id):
 
     cover_file.save(cover_path)
 
-   
+
 
     return jsonify({"message": "Cover uploaded successfully"}), 200
-      
+
 @books_endpoint.route("/v1/books/<id>/cover", methods=["GET"])
-#@auth_required()
 def get_book_cover(id):
     """
       Get book cover
@@ -877,7 +876,7 @@ def get_book_cover(id):
             schema:
               type: integer
       security:
-        - bearerAuth: []         
+        - bearerAuth: []
       responses:
         200:
           description: book cover
@@ -887,18 +886,14 @@ def get_book_cover(id):
           description: No cover found.
     """
 
-    #claim_id = get_current_user_id()
-    
-    #book = Books.query.filter(Books.owner_id == claim_id, Books.id == id).first()
     book = Books.query.filter(Books.id == id).first()
     if not book:
         return jsonify({"error": "Not found", "message": "No cover found"}), 404
 
-    covers_folder = os.path.join(os.getcwd(), "covers")     
+    covers_folder = os.path.join(os.getcwd(), "covers")
     for extension in ("jpg", "jpeg", "png"):
-      filename = f"{book.id}.{extension}" 
+      filename = f"{book.id}.{extension}"
       if os.path.isfile(os.path.join(covers_folder, filename)):
         return send_from_directory(covers_folder, filename, as_attachment=False)
 
     return jsonify({"error": "Not found", "message": "No cover found"}), 404
-      
